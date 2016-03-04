@@ -418,7 +418,8 @@ void redisProcessCallbacks(redisAsyncContext *ac) {
         if (reply == NULL) {
             /* When the connection is being disconnected and there are
              * no more replies, this is the cue to really disconnect. */
-            if (c->flags & REDIS_DISCONNECTING && sdslen(c->obuf) == 0) {
+            if (c->flags & REDIS_DISCONNECTING && sdslen(c->obuf) == 0
+                && ac->replies.head == NULL) {
                 __redisAsyncDisconnect(ac);
                 return;
             }
@@ -488,7 +489,7 @@ void redisProcessCallbacks(redisAsyncContext *ac) {
 }
 
 /* Internal helper function to detect socket status the first time a read or
- * write event fires. When connecting was not succesful, the connect callback
+ * write event fires. When connecting was not successful, the connect callback
  * is called with a REDIS_ERR status and the context is free'd. */
 static int __redisAsyncHandleConnect(redisAsyncContext *ac) {
     redisContext *c = &(ac->c);
